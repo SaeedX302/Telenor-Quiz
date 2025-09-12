@@ -218,10 +218,10 @@
 
     <!-- Main Quiz Container -->
     <main class="w-full max-w-lg mt-8">
-        <h1 id="mainTitle" class="text-5xl font-bold text-gray-800 text-center">TSun Daily Quiz</h1>
-        <p class="text-xs md:text-sm text-center text-red-600 dark:text-red-400 mt-2">Daily Telenor Quiz Answer</p> 
-        <p class="text-xs md:text-sm text-center text-red-600 dark:text-red-400 mt-2">By ༯𝙎ค૯𝙀𝘿✘🫀</p>
-        <div id="quiz-container" class="glass-card rounded-2xl p-6 md:p-8 flex flex-col items-center shadow-lg transform transition-all duration-500 mt-8">
+        <h1 id="mainTitle" class="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-800 text-center">TSun Daily Quiz</h1>
+        <p class="text-xs sm:text-sm text-center text-red-600 dark:text-red-400 mt-2">Daily Telenor Quiz Answer</p> 
+        <p class="text-xs sm:text-sm text-center text-red-600 dark:text-red-400 mt-2">By ༯𝙎ค૯𝙀𝘿✘🫀</p>
+        <div id="quiz-container" class="glass-card rounded-2xl p-4 md:p-8 flex flex-col items-center shadow-lg transform transition-all duration-500 mt-4 md:mt-8">
             <!-- Loading and Error State -->
             <div id="loading-state" class="text-center flex flex-col items-center">
                 <div class="loader"></div>
@@ -610,13 +610,13 @@
 
         quizData.forEach((item, index) => {
             const questionBlock = document.createElement('div');
-            questionBlock.classList.add('p-6', 'mb-6', 'rounded-xl', 'glass-card');
+            questionBlock.classList.add('p-4', 'sm:p-6', 'mb-4', 'sm:mb-6', 'rounded-xl', 'glass-card');
 
             const questionHeader = document.createElement('div');
-            questionHeader.classList.add('flex', 'justify-between', 'items-center', 'mb-4');
+            questionHeader.classList.add('flex', 'flex-col', 'sm:flex-row', 'justify-between', 'items-start', 'sm:items-center', 'mb-4');
             
             const questionHeading = document.createElement('h2');
-            questionHeading.classList.add('text-xl', 'md:text-2xl', 'font-semibold', 'text-gray-800', 'leading-relaxed', 'w-3/4');
+            questionHeading.classList.add('text-lg', 'sm:text-xl', 'md:text-2xl', 'font-semibold', 'text-gray-800', 'leading-relaxed', 'mb-2', 'sm:mb-0', 'w-full', 'sm:w-3/4');
             questionHeading.textContent = `${index + 1}. ${item.question}`;
             questionHeader.appendChild(questionHeading);
 
