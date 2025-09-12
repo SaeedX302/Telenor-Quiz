@@ -152,16 +152,16 @@
             background-color: rgba(255, 255, 255, 0.2);
         }
         body.dark-theme .bg-white {
-            background-color: rgba(255, 255, 255, 0.1);
+            background-color: rgba(30, 30, 30, 0.9);
         }
         body.dark-theme .bg-white:hover {
-            background-color: rgba(255, 255, 255, 0.2);
+            background-color: rgba(30, 30, 30, 1.0);
         }
         body.dark-theme .text-gray-500 {
             color: #a0a0a0;
         }
         body.dark-theme .text-gray-700 {
-            color: #d1d1d1;
+            color: #f1f1f1;
         }
         body.dark-theme .border-gray-200 {
             border-color: #444;
@@ -196,33 +196,28 @@
         }
     </style>
 </head>
-<body class="bg-gray-100 flex flex-col items-center justify-center p-4">
+<body class="flex flex-col items-center justify-center p-4">
 
-    <!-- Quote Section -->
     <div id="quote-container" class="w-full text-center py-4 px-2">
         <p id="quote-text" class="text-red-400 dark:text-red-300 italic text-sm md:text-base quote-animation"></p>
         <p id="quote-author" class="text-red-500 dark:text-red-400 text-xs md:text-sm mt-1"></p>
     </div>
 
-    <!-- Header with Theme Button and Changelog -->
     <header class="w-full flex justify-end items-center py-4 px-2">
         <div class="flex space-x-2">
             <button id="themeBtn" aria-label="Switch to dark theme" title="Switch to dark theme" aria-pressed="false" class="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-full shadow-md transition-all duration-300 transform hover:scale-105">
-                <!-- SVG Icon will be injected here -->
-            </button>
+                </button>
             <button id="changelogBtn" aria-label="Open changelog" title="Open changelog" class="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-full shadow-md transition-all duration-300 transform hover:scale-105">
                 📜 Changelog
             </button>
         </div>
     </header>
 
-    <!-- Main Quiz Container -->
     <main class="w-full max-w-lg mt-8">
         <h1 id="mainTitle" class="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-800 text-center">TSun Daily Quiz</h1>
         <p class="text-xs sm:text-sm text-center text-red-600 dark:text-red-400 mt-2">Daily Telenor Quiz Answer</p> 
         <p class="text-xs sm:text-sm text-center text-red-600 dark:text-red-400 mt-2">By ༯𝙎ค૯𝙀𝘿✘🫀</p>
         <div id="quiz-container" class="glass-card rounded-2xl p-4 md:p-8 flex flex-col items-center shadow-lg transform transition-all duration-500 mt-4 md:mt-8">
-            <!-- Loading and Error State -->
             <div id="loading-state" class="text-center flex flex-col items-center">
                 <div class="loader"></div>
                 <p class="mt-4 text-lg text-gray-600">Loading today's quiz<span id="dots" class="animate-pulse">...</span></p>
@@ -232,17 +227,14 @@
                 <p class="text-gray-600 mt-2">Server se data nahi aa raha hai. Check your connection or the API.</p>
             </div>
             
-            <!-- Questions List -->
             <div id="questions-list" class="hidden w-full">
-                <!-- All questions and answers will be injected here by JS -->
-            </div>
+                </div>
             <div class="mt-6 w-full text-center">
                 <button id="generateTitleBtn" class="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded-full shadow-md transition-all duration-300 transform hover:scale-105">
                     ✨ Generate Quiz Title
                 </button>
             </div>
         </div>
-        <!-- Fun Fact Modal -->
         <div id="funFactModal" class="modal fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center p-4 hidden">
             <div class="glass-card rounded-xl p-6 w-full max-w-lg shadow-lg">
                 <div class="flex justify-between items-center">
@@ -260,7 +252,6 @@
         </div>
     </main>
 
-    <!-- Footer -->
     <footer class="w-full text-center mt-8 text-gray-600">
         <p class="text-sm md:text-base">
             Crafted with ❤️ by <a href="https://linktr.ee/saeedxdie" target="_blank" rel="noopener noreferrer" class="font-bold text-indigo-500 hover:text-indigo-600">༯𝙎ค૯𝙀𝘿✘🫀</a>
@@ -269,9 +260,11 @@
             <a href="https://github.com/SaeedX302" target="_blank" rel="noopener noreferrer" class="hover:text-indigo-500">GitHub</a>
             <a href="https://www.tiktok.com/@saeedxdie" target="_blank" rel="noopener noreferrer" class="hover:text-indigo-500">TikTok</a>
         </div>
+        <p class="mt-2 text-sm">
+            <a href="https://linktr.ee/saeedxdie" target="_blank" rel="noopener noreferrer">My PortFolio</a>
+        </p>
     </footer>
     
-    <!-- Changelog Modal -->
     <div id="changelogModal" class="modal fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center p-4 hidden">
         <div class="bg-white rounded-xl p-6 w-full max-w-lg shadow-lg">
             <div class="flex justify-between items-center">
@@ -279,7 +272,6 @@
                 <button id="closeModalBtn" aria-label="Close changelog" title="Close changelog" class="text-gray-500 hover:text-gray-800 text-2xl font-bold">&times;</button>
             </div>
             <div id="changelogContent" class="mt-4 max-h-96 overflow-y-auto pr-2">
-                <!-- Changelog content will be inserted here -->
                 <div class="mb-6 pb-4 border-b border-gray-200">
                     <p class="text-sm text-gray-500">Date: 13 September, 2025</p>
                     <p class="text-sm text-gray-500">Version: 1.0.21</p>
