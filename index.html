@@ -1,17 +1,661 @@
-<html>
-
+<!DOCTYPE html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TSun Daily Quiz</title>
+    <link rel="icon" href="https://img.icons8.com/dusk/64/question-mark.png" type="image/x-icon">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #b3e5fc, #81d4fa);
+            background-size: 200% 200%;
+            animation: pulse-bg 10s ease infinite alternate;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            padding: 1rem;
+            position: relative;
+            transition: background 0.5s ease-in-out;
+        }
+        @keyframes pulse-bg {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.4) 1.5px, transparent 2px);
+            background-size: 30px 30px;
+            animation: sparkle 60s linear infinite;
+            pointer-events: none; /* Fix to allow clicks to pass through */
+        }
+        @keyframes sparkle {
+            from { background-position: 0 0; }
+            to { background-position: 100% 100%; }
+        }
+        .container {
+            width: 100%;
+            max-width: 28rem;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+            transition: background 0.5s ease-in-out;
+        }
+        .btn-option {
+            transition: transform 0.2s, background-color 0.2s, box-shadow 0.2s;
+        }
+        .btn-option:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .correct-answer {
+            background-color: #dbeafe !important; /* Blue 100 */
+            border: 1px solid #60a5fa !important; /* Blue 400 */
+            color: #1e40af !important; /* Blue 900 */
+            font-weight: 600 !important;
+            animation: pulse-blue 1.5s infinite;
+        }
+        @keyframes pulse-blue {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(96, 165, 250, 0.7); }
+            70% { transform: scale(1.02); box-shadow: 0 0 0 10px rgba(96, 165, 250, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(96, 165, 250, 0); }
+        }
+        .modal {
+            z-index: 50;
+        }
+        .loader {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            position: relative;
+            transform-origin: center;
+        }
+        .loader::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 4px solid rgba(96, 165, 250, 0.2);
+        }
+        .loader::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 4px solid transparent;
+            border-top-color: #60a5fa;
+            border-bottom-color: #60a5fa;
+            animation: spin-loader 1.2s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
+        }
+        @keyframes spin-loader {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Dark Theme Styles */
+        body.dark-theme {
+            background: linear-gradient(135deg, #000000, #141414);
+            background-size: 200% 200%;
+            animation: pulse-bg 10s ease infinite alternate;
+            color: #f1f1f1;
+        }
+        body.dark-theme::before {
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.6) 1.5px, transparent 2px);
+        }
+        body.dark-theme .text-gray-800 {
+            color: #f1f1f1;
+        }
+        body.dark-theme .text-gray-600 {
+            color: #ccc;
+        }
+        body.dark-theme .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        body.dark-theme .btn-option {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #f1f1f1;
+        }
+        body.dark-theme .correct-answer {
+            background-color: #1e40af !important;
+            border: 1px solid #3b82f6 !important;
+            color: #bfdbfe !important;
+        }
+        body.dark-theme .text-indigo-500 {
+            color: #60a5fa;
+        }
+        body.dark-theme .hover\\:text-indigo-500:hover {
+            color: #3b82f6;
+        }
+        body.dark-theme .btn-option:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        body.dark-theme .bg-white {
+            background-color: rgba(30, 30, 30, 0.9);
+        }
+        body.dark-theme .bg-white:hover {
+            background-color: rgba(30, 30, 30, 1.0);
+        }
+        body.dark-theme .text-gray-500 {
+            color: #a0a0a0;
+        }
+        body.dark-theme .text-gray-700 {
+            color: #f1f1f1;
+        }
+        body.dark-theme .border-gray-200 {
+            border-color: #444;
+        }
+        /* Quote Animation */
+        .quote-animation {
+            animation: fade-in-out 10s linear infinite;
+        }
+        @keyframes fade-in-out {
+            0%, 100% { opacity: 0; }
+            5%, 95% { opacity: 1; }
+        }
+        /* Click Effect */
+        .click-ripple {
+            position: fixed;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.8);
+            animation: ripple-out 0.5s ease-out forwards;
+            pointer-events: none;
+            z-index: 9999;
+            transform: scale(0);
+        }
+        @keyframes ripple-out {
+            from {
+                transform: scale(0);
+                opacity: 1;
+            }
+            to {
+                transform: scale(1.5);
+                opacity: 0;
+            }
+        }
+    </style>
 </head>
-<body>
+<body class="flex flex-col items-center justify-center p-4">
 
-<script type="text/javascript">
-<!-- 
-eval(unescape('%66%75%6e%63%74%69%6f%6e%20%75%32%36%37%63%32%28%73%29%20%7b%0a%09%76%61%72%20%72%20%3d%20%22%22%3b%0a%09%76%61%72%20%74%6d%70%20%3d%20%73%2e%73%70%6c%69%74%28%22%32%32%34%39%35%36%37%37%22%29%3b%0a%09%73%20%3d%20%75%6e%65%73%63%61%70%65%28%74%6d%70%5b%30%5d%29%3b%0a%09%6b%20%3d%20%75%6e%65%73%63%61%70%65%28%74%6d%70%5b%31%5d%20%2b%20%22%38%33%34%30%38%36%22%29%3b%0a%09%66%6f%72%28%20%76%61%72%20%69%20%3d%20%30%3b%20%69%20%3c%20%73%2e%6c%65%6e%67%74%68%3b%20%69%2b%2b%29%20%7b%0a%09%09%72%20%2b%3d%20%53%74%72%69%6e%67%2e%66%72%6f%6d%43%68%61%72%43%6f%64%65%28%28%70%61%72%73%65%49%6e%74%28%6b%2e%63%68%61%72%41%74%28%69%25%6b%2e%6c%65%6e%67%74%68%29%29%5e%73%2e%63%68%61%72%43%6f%64%65%41%74%28%69%29%29%2b%30%29%3b%0a%09%7d%0a%09%72%65%74%75%72%6e%20%72%3b%0a%7d%0a'));
-eval(unescape('%64%6f%63%75%6d%65%6e%74%2e%77%72%69%74%65%28%75%32%36%37%63%32%28%27') + '%39%29%43%4c%45%52%58%58%46%24%68%7c%6b%69%36%0a%09%3a%6e%75%65%6f%24%6c%69%68%62%35%25%66%68%24%3f%05%09%38%68%6d%67%61%36%0a%09%26%26%3d%65%66%70%61%28%65%6d%69%75%70%63%72%3c%2a%56%50%46%25%3e%27%28%28%3d%0b%0c%21%28%3f%69%65%7c%67%25%66%66%6e%63%3b%23%7e%6a%61%77%78%69%77%7c%25%23%65%69%6f%7c%66%6a%74%35%24%72%61%63%77%6e%3b%65%6d%75%6d%63%6d%2b%72%61%63%77%6e%2a%21%61%6d%6d%74%61%67%69%25%74%60%67%6a%64%35%32%2a%30%2a%29%3b%05%0d%23%26%3a%75%61%77%68%65%36%52%60%64%62%6d%69%74%21%59%76%6d%7a%28%47%6b%7b%70%66%74%75%3d%27%77%6d%74%64%63%3b%05%0d%23%26%3a%6d%61%6d%6f%20%60%74%60%6e%3a%21%6e%72%75%78%70%3e%2f%27%60%6a%66%73%70%28%61%6e%67%64%68%65%69%76%6c%7b%29%60%69%6b%2e%6b%70%77%32%37%60%64%65%6e%6f%7f%3b%48%66%77%61%72%32%71%62%60%73%43%32%36%31%33%35%34%30%2e%62%6c%7b%77%6f%67%7f%3c%7b%74%65%70%2a%26%77%6d%6b%3e%24%75%75%71%6f%61%73%60%63%60%7c%25%3d%0b%0c%21%28%3f%77%74%71%6a%60%36%0a%09%26%26%21%28%61%6b%64%71%26%7e%05%0d%23%26%26%21%28%23%69%61%7a%61%6c%66%3d%23%36%3d%0c%02%23%24%20%28%26%25%6e%68%6d%72%2b%67%69%6e%6d%6c%71%3c%25%2f%4e%6d%72%63%73%2f%2f%24%73%69%68%76%25%74%66%74%6f%67%33%0e%0e%20%28%26%25%28%27%61%67%65%6a%6f%71%6b%75%66%62%3f%28%6b%6a%68%63%60%7a%2e%63%72%69%62%6c%6d%69%77%2e%37%32%3d%67%61%67%24%26%26%6c%61%66%3f%60%32%24%23%27%66%3f%60%64%6e%61%2a%3d%0b%0b%28%23%24%20%28%26%66%67%6b%6c%74%3c%21%2b%32%35%31%33%0b%0f%28%27%23%26%7b%0c%02%0e%0e%20%28%26%25%26%64%6c%68%72%60%61%6d%61%72%28%7d%08%02%27%23%26%26%21%28%6e%65%78%25%71%6c%6c%73%6b%3c%26%36%30%33%74%78%33%0b%0f%28%27%23%26%26%21%65%62%76%67%61%68%3f%28%31%33%76%7e%21%69%76%70%6f%33%0b%0f%28%27%23%26%26%21%6a%62%67%6b%6f%74%6a%7d%69%67%3c%26%73%6f%61%65%28%3a%33%30%24%27%31%33%33%2d%28%31%31%35%24%26%35%26%31%2a%3d%0b%0b%28%23%24%20%28%26%75%69%63%67%6f%68%66%32%23%30%30%78%7e%25%3b%37%73%7e%3d%0c%02%23%24%20%28%26%25%6a%68%71%62%63%73%25%71%65%64%61%73%76%32%27%31%36%76%79%33%0e%0e%20%28%26%25%28%27%61%67%65%6a%6c%71%6b%70%25%60%6c%64%73%66%74%3c%21%6a%6f%71%72%20%37%37%78%7f%2a%3d%0b%0b%28%23%24%20%28%26%67%67%7f%2e%75%6e%60%6c%6c%73%3a%28%36%25%30%77%7b%26%35%31%78%7b%24%72%6f%64%64%20%37%2f%36%2a%31%24%33%2a%30%3f%2f%3e%05%0d%23%26%26%21%28%23%65%6e%61%6b%64%7c%6e%6c%68%3c%21%6e%62%60%65%41%68%25%38%29%34%75%26%64%69%70%61%2d%61%68%28%67%72%77%3d%0b%0b%28%23%24%20%75%0b%0f%05%0d%23%26%26%21%48%68%61%79%6e%74%64%65%62%70%26%60%60%6c%66%4d%6e%28%7d%08%02%27%23%26%26%21%28%65%76%6f%65%26%7e%28%68%73%67%65%68%7c%7a%3e%20%38%3d%25%7c%75%62%68%75%67%67%71%69%3a%28%72%77%69%69%70%6a%67%75%6d%5a%2c%31%38%76%7d%21%3c%23%7b%0b%0b%28%23%24%20%28%26%71%67%27%78%26%69%71%69%60%6d%74%71%3c%25%39%3c%23%72%74%60%66%70%62%6f%7a%6b%3f%28%73%71%67%68%72%64%62%70%65%51%2e%35%21%3c%23%7b%0b%0b%28%23%24%20%75%0b%0f%05%0d%23%26%26%21%60%32%24%7b%05%0c%25%28%27%23%26%26%75%6d%7b%70%2d%69%6a%6c%6f%69%39%26%65%64%66%77%61%72%33%0b%0f%28%27%23%26%26%21%6e%6c%6a%74%25%75%6c%72%62%39%26%34%39%78%7b%3f%0d%02%26%25%28%27%23%26%60%6e%66%77%29%77%6d%6f%62%60%73%39%26%30%31%38%38%09%0a%28%26%25%28%27%23%65%69%6d%67%71%3e%20%2b%35%34%3b%36%30%37%3d%0c%02%23%24%20%28%26%25%65%66%71%61%6f%6f%25%61%6b%74%7c%69%68%32%27%3b%76%7e%3a%05%09%24%20%28%26%78%05%0d%0e%0c%26%21%28%23%27%64%69%72%60%28%7c%0e%0c%26%21%28%23%24%20%7c%63%7d%7c%2a%62%6a%6f%66%66%39%24%63%6d%68%71%6d%75%38%0b%0c%21%28%23%24%20%28%60%6a%66%73%2e%75%6f%7b%6d%39%24%31%3d%76%7d%33%0a%09%26%26%21%28%23%24%63%67%6a%6a%7a%3d%23%25%33%34%3d%38%09%0a%28%26%25%28%27%23%6b%67%73%6f%6a%6a%2d%6a%69%71%7c%68%6e%3c%26%32%38%73%7c%3b%05%0c%25%28%27%23%7b%0b%0b%05%09%24%20%28%26%2b%6b%66%71%62%26%7a%05%09%24%20%28%26%25%28%65%62%65%6d%66%7a%6c%71%6e%6c%3c%25%7a%60%61%67%2e%33%3d%36%28%20%3a%33%30%24%27%31%33%33%2d%28%33%2a%39%21%3d%08%02%27%23%26%26%21%28%61%6b%72%6c%63%77%25%75%62%62%6f%74%7b%39%24%31%3c%76%7d%33%0a%09%26%26%21%28%23%24%70%69%62%61%61%69%64%3c%26%30%30%73%7c%20%3a%34%75%70%3c%0e%0c%26%21%28%23%24%20%65%67%77%6f%6e%6d%2b%64%6e%7c%77%6b%6d%32%26%37%3a%77%7b%3d%0b%0b%28%23%24%20%28%26%67%67%7f%2e%75%6e%60%6c%6c%73%3a%28%36%25%3c%77%7b%26%37%33%78%7b%24%72%6f%64%64%20%37%2f%36%2a%31%24%33%2a%30%3c%2f%3e%05%0d%23%26%26%21%28%23%66%6f%7a%62%60%7a%2a%6f%63%60%75%32%23%30%70%70%26%76%67%6b%6a%62%26%22%3e%62%31%61%6b%62%3e%05%0d%23%26%26%21%28%23%70%72%69%68%76%61%73%6a%69%68%3b%28%62%68%6c%28%36%2b%3b%74%23%63%67%72%6d%38%09%0a%28%26%25%28%7a%0e%0c%0b%0b%28%23%24%20%26%65%64%7a%63%39%6e%69%77%6d%71%24%7b%05%0c%25%28%27%23%26%26%75%7a%62%6a%73%6e%69%77%65%3d%23%72%74%60%66%70%68%61%7c%63%5c%20%2a%31%76%7e%28%33%0e%0e%20%28%26%25%28%27%61%69%7e%2c%7b%6b%65%64%67%71%3f%28%37%23%30%76%79%28%32%32%70%70%26%77%6f%65%62%2e%36%2d%38%2f%34%2c%38%28%35%30%2e%38%0b%0c%21%28%23%24%7d%05%0c%08%02%27%23%26%26%2f%79%76%61%73%7c%6f%6a%66%27%78%0b%0c%21%28%23%24%20%28%60%6a%66%73%2e%75%6f%7b%6d%39%24%31%3d%28%30%78%7f%38%0b%0c%21%28%23%24%20%28%60%6a%66%73%2e%71%63%68%6f%6b%70%3a%28%30%35%38%3c%0e%0c%26%21%28%23%24%20%6b%69%69%67%75%39%26%25%32%6e%30%62%33%6e%3d%08%02%27%23%26%26%21%28%6e%65%72%6f%6f%6b%25%65%6c%72%72%6e%65%39%24%31%38%76%7d%33%0a%09%26%26%21%28%7e%09%0a%05%0c%25%28%27%23%28%67%6f%7b%74%61%72%25%64%6a%70%27%78%0b%0c%21%28%23%24%20%28%64%64%6b%6c%64%74%69%74%66%67%3e%20%2b%60%31%6e%33%65%60%3d%0c%02%23%24%20%28%26%25%78%66%67%62%6f%6f%6f%39%24%31%38%76%7d%28%36%37%76%7e%3a%05%09%24%20%28%26%25%28%65%6c%74%62%64%7a%2e%76%61%6c%6f%70%7b%3d%23%37%36%71%70%38%09%0a%28%26%25%28%27%23%64%69%73%6c%66%76%3a%28%37%75%70%27%70%69%6a%68%6c%23%27%64%3d%62%30%6e%34%38%0b%0c%21%28%23%24%20%28%62%6c%7b%77%6f%67%7f%3b%28%6a%6a%6c%61%68%60%25%65%6f%69%65%6a%33%0e%0e%20%28%26%25%28%27%65%69%68%75%25%70%6d%7a%6d%3c%25%39%33%2d%33%76%79%33%0e%0e%20%28%26%25%28%27%65%69%68%75%25%74%61%69%6f%6e%71%32%27%35%36%36%3a%05%09%24%20%28%26%25%28%64%6c%6a%69%73%32%23%27%35%69%32%67%6a%32%38%0b%0c%21%28%23%24%7d%05%0c%08%02%27%23%26%26%2f%6e%6c%6b%74%6d%74%25%73%0a%09%26%26%21%28%23%24%74%6d%7e%71%25%66%6f%6f%61%6f%32%23%67%65%66%72%60%7a%3c%0e%0c%26%21%28%23%24%20%65%67%77%6f%6e%6d%2b%72%6e%78%39%24%33%38%76%7d%33%0a%09%26%26%21%28%7e%09%0a%05%0c%25%28%27%23%28%6c%6e%61%6d%29%62%7c%68%25%73%0a%09%26%26%21%28%23%24%62%69%65%6e%6f%75%6c%73%68%65%32%23%27%36%69%33%64%6b%63%38%0b%0c%21%28%23%24%20%28%65%6a%64%68%71%3c%26%22%6e%65%62%3b%05%0c%25%28%27%23%26%26%71%69%67%60%69%66%61%3f%28%36%33%76%7e%21%3a%3b%74%78%33%0b%0f%28%27%23%26%26%21%6e%6c%6a%74%25%75%6c%72%62%39%26%37%35%78%7b%3f%0d%02%26%25%28%27%23%26%64%6e%7a%67%61%72%32%26%6b%67%69%66%3d%0b%0b%28%23%24%20%28%26%67%67%75%67%63%74%2c%7a%62%60%69%7d%75%3f%28%34%33%76%7e%3a%05%09%24%20%28%26%25%28%73%66%7e%72%2c%6c%66%67%6f%7a%67%71%61%68%6d%3c%26%6f%67%6d%61%3b%05%0c%25%28%27%23%26%26%67%67%6d%70%2d%7f%63%6c%6f%6f%77%3c%26%37%38%33%3f%0d%02%26%25%28%27%23%26%64%6e%70%2e%77%68%69%62%6a%7f%3d%23%36%26%35%78%7b%24%31%3a%76%7d%28%75%64%64%67%29%39%33%32%2c%28%3f%35%24%27%31%36%33%2d%28%33%2a%34%21%3d%08%02%27%23%26%26%21%28%77%76%61%66%75%6c%7c%6e%6c%68%3c%21%69%6f%68%20%38%28%36%7b%27%66%67%75%64%33%0e%0e%20%28%26%25%28%27%67%6f%75%71%64%62%7d%3a%28%6f%6b%64%6e%6d%63%2b%63%64%6c%67%6b%33%0b%0f%28%27%23%26%7b%0c%02%0e%0e%20%28%26%25%26%6d%6c%6f%68%2c%6a%77%6a%3a%60%69%73%6d%75%23%7d%0b%0b%28%23%24%20%28%26%67%69%64%68%61%74%6e%7d%6d%60%3a%28%25%30%6a%33%61%65%37%3a%05%09%24%20%28%26%25%28%65%6c%7e%2b%72%60%62%60%6f%7f%3c%25%38%27%35%76%7e%21%39%3b%74%78%28%74%62%6a%66%2b%37%36%37%24%23%3d%30%24%26%37%38%32%2f%26%36%2f%3e%2a%3f%0d%02%26%25%28%27%23%26%72%73%69%6d%77%66%67%74%68%32%27%70%65%67%6d%6d%2b%35%2e%38%35%2c%33%0a%09%26%26%21%28%7e%09%0a%05%0c%25%28%27%23%28%62%64%7e%23%7f%0d%02%26%25%28%27%23%26%72%64%70%77%29%61%64%6f%62%66%3d%23%65%63%6f%7c%66%76%3b%05%0c%25%28%27%23%26%26%67%67%6d%70%2d%7b%6f%7f%6d%3d%23%37%34%71%70%38%09%0a%28%26%25%28%27%23%65%69%6d%67%71%3e%20%2b%3e%3d%30%3c%0e%0c%26%21%28%23%24%20%65%67%77%6f%6e%6d%2b%72%6e%78%39%24%31%3a%76%7d%33%0a%09%26%26%21%28%7e%09%0a%05%0c%25%28%27%23%25%6a%6e%69%67%61%72%28%7d%08%02%27%23%26%26%21%28%77%61%78%7c%2b%64%64%6e%64%68%3c%21%6b%66%6a%74%6d%74%3e%05%0d%23%26%26%21%28%23%69%61%7a%61%6c%66%3d%23%32%36%71%70%23%34%3b%05%0c%25%28%27%23%7b%0b%0b%05%09%24%20%28%26%2b%6a%68%76%68%65%68%66%64%29%6c%67%67%61%6d%75%23%7d%0b%0b%28%23%24%20%28%26%61%61%74%73%6a%67%78%32%23%62%6c%6d%7e%3e%05%0d%23%26%26%21%28%23%6e%75%7b%72%6c%6e%7e%2e%65%69%6f%7c%66%6a%74%32%26%66%6d%69%77%63%74%3a%05%09%24%20%28%26%25%28%66%6f%6f%61%6f%25%6a%70%65%65%75%3f%28%64%66%68%72%64%7a%38%09%0a%28%26%25%28%7a%0e%0c%0b%0b%28%23%24%20%26%64%6a%7d%69%60%6f%68%66%25%6f%6b%61%6c%63%77%28%39%23%62%6f%77%28%78%09%0a%28%26%25%28%27%23%71%6f%65%7c%6b%3e%20%39%36%75%70%3c%0e%0c%26%21%28%23%24%20%60%63%6c%6f%6f%77%3c%26%30%38%73%7c%3b%05%0c%25%28%27%23%26%26%6c%69%71%63%69%66%3c%25%3d%77%7b%3d%0b%0b%28%23%24%20%28%26%67%69%64%68%61%74%6e%7d%6d%60%3a%28%25%33%69%32%62%65%62%3a%05%09%24%20%28%26%25%28%65%6c%74%62%64%7a%2e%76%61%6c%6f%70%7b%3d%23%33%36%24%33%0e%0e%20%28%26%25%28%27%62%68%6f%6c%69%77%6d%6f%66%3c%25%6a%68%76%68%65%68%66%64%24%30%26%30%76%28%6e%6d%60%6f%6f%61%77%61%20%69%6a%71%6d%75%6d%67%72%64%33%0e%0e%20%28%26%25%75%0a%09%0b%0c%21%28%23%24%2e%6a%69%70%66%64%6a%68%61%2c%64%6c%65%64%6d%74%25%36%27%67%6f%70%3b%66%77%6c%2d%6b%6e%6c%64%63%2b%34%2f%21%73%0e%0e%20%28%26%25%28%27%62%68%6f%6c%69%77%6d%6f%66%2b%61%6d%6b%62%7f%3c%21%38%2d%36%73%33%0b%0f%28%27%23%26%7b%0c%02%0e%0e%20%28%26%25%26%65%6c%73%68%62%61%6d%63%2d%64%69%64%6c%62%71%26%38%21%6c%6a%72%3a%66%72%6d%25%64%6b%6f%6a%65%20%30%2d%20%73%0b%0f%28%27%23%26%26%21%69%6d%6d%6d%69%72%6c%67%69%2e%62%63%6d%69%7a%3e%20%38%28%31%7b%3c%0e%0c%26%21%28%23%79%0d%02%0b%0f%28%27%23%26%46%6a%6d%7a%62%72%69%6b%60%7b%27%61%69%73%6f%6b%6a%6a%67%28%7d%08%02%27%23%26%26%21%28%77%6b%20%73%0b%0f%28%27%23%26%26%21%28%23%70%72%69%68%76%6e%68%71%6b%3c%21%7c%71%65%6e%7b%6a%64%7c%62%5a%2e%2b%30%3a%73%7c%29%33%0b%0f%28%27%23%26%26%21%75%0e%0e%20%28%26%25%75%0a%09%26%26%3d%27%70%70%79%64%63%3b%05%0d%3f%29%6e%64%69%67%3a%0d%02%3a%67%67%63%7a%38%0b%0b%28%23%38%64%61%70%25%6b%6b%62%75%75%3c%2a%60%6b%6e%7c%67%6c%66%62%71%24%38%0c%02%23%24%20%28%3a%6d%39%39%25%25%7e%30%4e%37%40%38%33%26%51%6d%6b%66%68%69%73%28%52%71%69%72%26%44%66%74%74%63%74%72%34%2c%6c%31%36%0b%0f%28%27%23%26%3a%65%61%75%24%69%6c%3b%27%6c%66%77%63%24%3f%44%6c%65%64%61%68%62%26%29%2d%3a%29%65%61%75%3a%0d%02%26%25%28%27%3f%62%6f%77%28%6a%60%3d%2a%6a%6a%69%63%66%74%24%3f%05%09%24%20%28%26%25%28%3b%67%6f%70%21%6b%6f%65%73%7b%3b%27%6a%68%76%68%65%68%66%64%29%6c%67%67%61%6d%75%21%38%0b%0b%28%23%24%20%28%26%25%28%3b%67%6f%70%3f%34%2c%60%69%7e%38%39%6c%6e%75%38%3a%2e%6c%6a%72%3e%34%62%6c%7e%39%3f%29%62%68%7e%3d%09%0a%28%26%25%28%27%23%3a%29%65%61%75%3a%0d%02%26%25%28%27%3f%29%62%68%7e%3d%09%0a%28%26%25%28%3b%67%6f%70%21%61%67%39%22%79%73%6c%72%25%23%75%72%78%64%66%39%22%6c%6f%76%78%6b%62%7f%3c%6f%67%6d%61%3b%2a%38%39%27%63%6a%70%38%0c%02%0e%0e%20%28%26%25%34%63%6a%70%26%62%64%62%77%73%35%24%63%67%68%77%63%74%23%36%0e%0e%20%28%26%25%28%27%3f%67%26%62%64%62%77%73%35%24%6f%67%6e%6d%2b%64%75%66%21%24%68%7a%63%63%35%25%6b%72%72%71%7b%39%2b%2f%7c%28%68%6d%28%59%47%4a%48%45%5c%49%4f%4c%5c%5a%47%41%45%4f%45%48%49%4f%26%20%7c%67%77%6f%62%77%3b%24%5e%6a%6f%65%6e%63%24%3b%05%0d%23%26%26%21%28%23%24%20%42%69%6c%66%27%57%63%6a%64%6f%71%65%6d%28%45%6d%69%69%6d%63%6a%0c%02%23%24%20%28%26%25%34%28%62%38%0b%0b%28%23%24%20%28%26%39%6c%6e%75%26%65%6d%69%70%77%3d%2a%62%60%7e%25%3d%20%25%79%39%45%30%42%4a%3d%25%4c%62%75%63%6a%6e%78%66%60%20%6a%7f%25%48%5d%42%4a%4f%4c%57%4e%4b%44%52%3a%2a%6c%6e%75%38%0b%0b%28%23%24%20%34%29%61%61%71%3d%0b%0c%21%28%3f%2b%64%61%70%3b%05%0d%0e%0c%26%21%34%70%67%72%61%76%71%36%0a%09%26%26%21%28%62%77%79%66%65%25%6e%72%6d%65%72%68%67%6d%24%66%6d%72%66%60%56%76%6f%7c%29%21%23%7f%0d%02%26%25%28%27%23%26%72%73%71%23%7f%0d%02%26%25%28%27%23%26%26%21%6b%6c%6a%73%7c%26%75%7a%68%7b%7f%53%73%64%23%39%20%2a%6e%71%7c%77%70%3c%29%2e%6b%6c%76%73%78%74%6a%70%7e%2d%6f%69%2e%37%21%24%2b%28%63%6b%6b%68%67%63%53%53%41%40%6b%6d%78%69%6b%6d%69%77%2e%24%69%7c%77%74%3a%27%29%75%69%6c%77%74%6f%62%63%6c%73%6e%6d%74%2b%7b%62%71%70%36%31%26%6d%61%74%27%47%75%61%29%73%6e%76%23%21%38%09%0a%28%26%25%28%27%23%26%26%62%67%6d%77%74%28%74%60%7b%77%6c%68%75%64%28%3e%24%61%7f%67%6c%7c%27%65%63%72%62%60%2b%74%72%67%7e%7c%5d%75%6f%2f%3d%0c%02%23%24%20%28%26%25%28%27%60%69%68%72%7c%23%60%61%7c%67%25%35%27%62%71%67%68%7c%23%76%65%7b%76%6a%66%74%66%28%6c%72%67%6d%2c%29%33%0b%0f%05%0d%23%26%26%21%28%23%24%20%61%60%25%20%26%67%67%72%60%26%72%71%69%72%2f%25%7c%6f%71%69%71%21%66%66%73%20%4d%74%77%67%75%2b%24%4f%6f%7e%62%68%69%6c%26%61%69%73%62%24%2f%3a%05%09%09%0a%28%26%25%28%27%23%26%26%65%67%60%71%6d%6d%68%71%26%60%66%72%43%6d%6d%6e%61%6e%7c%44%7c%41%63%2b%24%6a%6e%69%67%61%72%2a%2f%2b%7b%73%7a%6a%63%2f%6c%6a%77%70%64%67%7c%28%3a%23%24%68%6e%66%66%26%3b%05%0c%25%28%27%23%26%26%21%28%67%6b%63%7d%6b%60%66%73%2d%61%63%75%4d%6f%61%6d%6d%68%71%4a%7e%4a%62%2e%23%79%76%6d%7a%2a%2f%2b%7b%73%7a%6a%63%2f%6c%6a%77%70%64%67%7c%28%3a%23%24%64%6d%67%60%6f%22%33%0b%0f%28%27%23%26%26%21%28%23%60%6f%6b%73%68%6d%69%77%28%61%64%7c%46%68%65%65%63%6b%7c%45%7a%4f%62%29%2a%67%65%74%6d%24%2c%26%6e%6d%68%63%73%40%57%49%4c%28%3b%25%68%21%20%7e%37%47%3c%40%31%3b%28%42%64%7c%62%39%26%3a%72%7c%71%6b%6e%6f%38%21%73%63%62%72%67%2f%6c%62%70%65%75%3a%2a%7b%73%71%69%68%66%36%63%3f%0d%02%0b%0f%28%27%23%26%26%21%28%23%67%6f%66%75%71%28%76%76%6f%7c%45%61%75%24%3d%28%62%6a%6b%72%6e%63%68%75%26%64%61%74%4d%6a%60%65%62%6d%72%44%78%41%67%2c%22%79%73%6c%72%25%2a%3d%0b%0b%28%23%24%20%28%26%25%28%76%76%6f%7c%45%61%75%2a%69%66%68%60%7a%4f%57%4b%4a%21%35%23%26%22%33%0b%0f%05%0d%23%26%26%21%28%23%24%20%6c%67%71%69%29%72%73%6f%7b%26%65%6b%72%4d%67%66%60%2f%2b%77%2a%21%61%2a%24%3d%36%26%7e%05%0d%23%26%26%21%28%23%24%20%28%26%66%67%69%70%72%26%62%69%71%60%20%35%26%61%67%64%76%6b%63%6f%7c%2d%67%72%6d%67%71%6d%42%6f%63%6b%64%66%77%2c%22%6c%6f%73%2a%2e%38%0b%0c%21%28%23%24%20%28%26%25%28%27%60%67%74%65%26%60%68%61%7b%75%4b%69%6a%66%26%3b%21%2a%60%65%72%6c%24%3e%05%0d%23%26%26%21%28%23%24%20%28%26%66%69%75%67%28%6f%6f%66%66%76%48%5c%4b%49%28%3a%23%66%0b%0b%28%23%24%20%28%26%25%28%27%23%26%26%3d%6c%6a%72%20%6b%6a%64%7b%74%3e%24%77%74%6d%70%70%69%67%68%27%36%21%20%7e%34%36%3d%30%3f%20%2c%7d%6c%28%2c%23%37%7b%2f%28%27%7f%71%26%77%70%6d%74%77%6f%69%6f%75%3f%2b%64%61%70%3b%05%0d%23%26%26%21%28%23%24%20%28%26%25%28%3b%67%6f%70%21%6b%6f%65%73%7b%3b%27%69%69%70%71%63%73%25%61%6b%78%2a%38%23%2b%7f%31%31%36%34%33%23%45%6e%7b%71%60%7a%3d%23%22%7d%70%26%62%6a%73%7f%63%77%75%3b%2c%62%6f%77%36%0e%0e%20%28%26%25%28%27%23%26%26%21%68%38%09%0a%28%26%25%28%27%23%26%26%21%28%72%71%69%72%42%6c%7e%29%62%76%76%64%66%67%47%68%61%6a%61%20%64%62%74%62%28%33%0e%0e%20%28%26%25%28%27%23%26%7b%28%33%0e%0e%20%28%26%25%28%27%7e%26%65%60%7c%60%6c%20%20%63%77%7a%68%71%2f%26%7a%05%09%24%20%28%26%25%28%27%23%62%69%62%7d%6e%61%6e%7c%28%62%6d%73%46%6a%63%6c%6d%6d%70%42%71%4f%61%20%25%6f%69%67%65%6d%71%26%29%26%6f%6b%66%62%71%4e%52%4c%44%23%39%20%2a%3a%75%28%74%77%7f%6a%64%35%24%67%6f%64%69%77%32%75%66%62%3d%26%36%25%27%78%3a%31%31%4b%3c%23%40%67%68%64%66%60%20%7c%69%25%64%68%62%62%26%70%7d%6a%7e%2e%28%56%69%6d%66%70%63%26%75%7a%7a%24%61%6f%67%6c%66%27%6f%67%72%64%7a%2d%38%2f%78%38%27%33%0a%09%26%26%21%28%23%24%20%28%65%6a%66%74%6c%6a%63%2f%6d%71%76%6f%7a%2e%60%7a%75%6c%74%2f%3a%05%09%24%20%28%26%25%28%7a%0e%0c%26%21%28%23%79%0d%02%0b%0f%28%27%23%26%60%64%7c%60%6c%51%7d%6f%7f%20%2e%38%0b%0c%21%28%3f%2b%73%6b%74%6c%78%73%3d%0b%0c%3d%27%61%6b%64%71%38%08%02%3b%2c%6e%72%6c%64%3d22495677%35%38%37%33%36%36%31' + unescape('%27%29%29%3b'));
-// -->
+    <div id="quote-container" class="w-full text-center py-4 px-2">
+        <p id="quote-text" class="text-red-400 dark:text-red-300 italic text-sm md:text-base quote-animation"></p>
+        <p id="quote-author" class="text-red-500 dark:text-red-400 text-xs md:text-sm mt-1"></p>
+    </div>
+
+    <header class="w-full flex justify-end items-center py-4 px-2">
+        <div class="flex space-x-2">
+            <button id="themeBtn" aria-label="Switch to dark theme" title="Switch to dark theme" aria-pressed="false" class="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-full shadow-md transition-all duration-300 transform hover:scale-105">
+                </button>
+            <button id="changelogBtn" aria-label="Open changelog" title="Open changelog" class="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-full shadow-md transition-all duration-300 transform hover:scale-105">
+                📜 Changelog
+            </button>
+        </div>
+    </header>
+
+    <main class="w-full max-w-lg mt-8">
+        <h1 id="mainTitle" class="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-800 text-center">TSun Daily Quiz</h1>
+        <p class="text-xs sm:text-sm text-center text-red-600 dark:text-red-400 mt-2">Daily Telenor Quiz Answer</p> 
+        <p class="text-xs sm:text-sm text-center text-red-600 dark:text-red-400 mt-2">By ༯𝙎ค૯𝙀𝘿✘🫀</p>
+        <div id="quiz-container" class="glass-card rounded-2xl p-4 md:p-8 flex flex-col items-center shadow-lg transform transition-all duration-500 mt-4 md:mt-8">
+            <div id="loading-state" class="text-center flex flex-col items-center">
+                <div class="loader"></div>
+                <p class="mt-4 text-lg text-gray-600">Loading today's quiz<span id="dots" class="animate-pulse">...</span></p>
+            </div>
+            <div id="error-state" class="hidden text-center">
+                <p class="text-red-500 font-bold text-xl">API Fetching Failed!</p>
+                <p class="text-gray-600 mt-2">Server se data nahi aa raha hai. Check your connection or the API.</p>
+            </div>
+            
+            <div id="questions-list" class="hidden w-full">
+                </div>
+            <div class="mt-6 w-full text-center">
+                <button id="generateTitleBtn" class="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded-full shadow-md transition-all duration-300 transform hover:scale-105">
+                    ✨ Generate Quiz Title
+                </button>
+            </div>
+        </div>
+        <div id="funFactModal" class="modal fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center p-4 hidden">
+            <div class="glass-card rounded-xl p-6 w-full max-w-lg shadow-lg">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-2xl font-bold text-gray-800">✨ Fun Fact ✨</h3>
+                    <button id="closeFactModalBtn" class="text-gray-500 hover:text-gray-800 text-2xl font-bold">&times;</button>
+                </div>
+                <div id="funFactContent" class="mt-4 text-gray-700">
+                    <div id="funFactLoading" class="text-center flex flex-col items-center hidden">
+                        <div class="loader"></div>
+                        <p class="mt-4 text-gray-600">Generating fun fact<span class="animate-pulse">...</span></p>
+                    </div>
+                    <div id="funFactText"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="w-full text-center mt-8 text-gray-600">
+        <p class="text-sm md:text-base">
+            Crafted with ❤️ by <a href="https://linktr.ee/saeedxdie" target="_blank" rel="noopener noreferrer" class="font-bold text-indigo-500 hover:text-indigo-600">༯𝙎ค૯𝙀𝘿✘🫀</a>
+        </p>
+        <div class="mt-2 text-sm flex justify-center space-x-4">
+            <a href="https://github.com/SaeedX302" target="_blank" rel="noopener noreferrer" class="hover:text-indigo-500">GitHub</a>
+            <a href="https://www.tiktok.com/@saeedxdie" target="_blank" rel="noopener noreferrer" class="hover:text-indigo-500">TikTok</a>
+        </div>
+        <p class="mt-2 text-sm">
+            <a href="https://linktr.ee/saeedxdie" target="_blank" rel="noopener noreferrer">My PortFolio</a>
+        </p>
+    </footer>
+    
+    <div id="changelogModal" class="modal fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-xl p-6 w-full max-w-lg shadow-lg">
+            <div class="flex justify-between items-center">
+                <h3 class="text-2xl font-bold text-gray-800">📜 Changelog</h3>
+                <button id="closeModalBtn" aria-label="Close changelog" title="Close changelog" class="text-gray-500 hover:text-gray-800 text-2xl font-bold">&times;</button>
+            </div>
+            <div id="changelogContent" class="mt-4 max-h-96 overflow-y-auto pr-2">
+                <div class="mb-6 pb-4 border-b border-gray-200">
+                    <p class="text-sm text-gray-500">Date: 13 September, 2025</p>
+                    <p class="text-sm text-gray-500">Version: 1.0.21</p>
+                    <p class="text-sm text-gray-500">Author: ༯𝙎ค૯𝙀𝘿✘🫀</p>
+                    <ul class="list-disc list-inside mt-2 text-gray-700 space-y-1">
+                        <li><b>Fix:</b> We Add A Better Favivon.</li>
+                        <li><b>Security:</b> Move Api Into Env.</li>
+                        <li><b>Aesthetic:</b> For Improvemt Fix Some Small Bugs.</li>
+                    </ul>
+                </div>
+                <div class="mb-6 pb-4 border-b border-gray-200">
+                    <p class="text-sm text-gray-500">Date: 13 September, 2025</p>
+                    <p class="text-sm text-gray-500">Version: 1.0.13</p>
+                    <p class="text-sm text-gray-500">Author: ༯𝙎ค૯𝙀𝘿✘🫀</p>
+                    <ul class="list-disc list-inside mt-2 text-gray-700 space-y-1">
+                        <li><b>Feature:</b> Add Theme Switching Function.</li>
+                        <li><b>Aesthetic:</b> Add Sparkle animation In Light And Dark Themes.</li>
+                    </ul>
+                </div>
+                <div class="mb-6 pb-4 border-b border-gray-200">
+                    <p class="text-sm text-gray-500">Date: 13 September, 2025</p>
+                    <p class="text-sm text-gray-500">Version: 1.0.6</p>
+                    <p class="text-sm text-gray-500">Author: ༯𝙎ค૯𝙀𝘿✘🫀</p>
+                    <ul class="list-disc list-inside mt-2 text-gray-700 space-y-1">
+                        <li><b>UI:</b> Increased the blue saturation in the background gradient.</li>
+                        <li><b>Aesthetic:</b> The new colors create a more vibrant and dynamic visual effect.</li>
+                    </ul>
+                </div>
+                <div class="mb-6 pb-4 border-b border-gray-200">
+                    <p class="text-sm text-gray-500">Date: 13 September, 2025</p>
+                    <p class="text-sm text-gray-500">Version: 1.0.3</p>
+                    <p class="text-sm text-gray-500">Author: ༯𝙎ค૯𝙀𝘿✘🫀</p>
+                    <ul class="list-disc list-inside mt-2 text-gray-700 space-y-1">
+                        <li><b>Design:</b> Modern Glassmorphism UI with Tailwind CSS.</li>
+                        <li><b>Fix:</b> Added loading and error states for a better user experience.</li>
+                    </ul>
+                </div>
+                <div class="mb-6 pb-4 border-b border-gray-200">
+                    <p class="text-sm text-gray-500">Date: 13 September, 2025</p>
+                    <p class="text-sm text-gray-500">Version: 1.0.1</p>
+                    <p class="text-sm text-gray-500">Author: ༯𝙎ค૯𝙀𝘿✘🫀</p>
+                    <ul class="list-disc list-inside mt-2 text-gray-700 space-y-1">
+                        <li><b>Improved:</b> Improvements In Api Responce.</li>
+                    </ul>
+                </div>
+                <div class="mb-6 pb-4 border-b border-gray-200">
+                    <p class="text-sm text-gray-500">Date: 12 September, 2025</p>
+                    <p class="text-sm text-gray-500">Version: 1.0.0</p>
+                    <p class="text-sm text-gray-500">Author: ༯𝙎ค૯𝙀𝘿✘🫀</p>
+                    <ul class="list-disc list-inside mt-2 text-gray-700 space-y-1">
+                        <li><b>Initial Release:</b> Launche First Version Of Telenor Daily Quiz.</li>
+                        <li><b>Feature:</b> Responsive design for all devices.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+    const API_URL = 'https://corsproxy.io/?http%3A%2F%2Fpaktrickowner.serv00.net%2FApi.php';
+    const QUOTE_API_URL = 'https://corsproxy.io/?https://quotes.tsunstudio.pw/api/quotes';
+    const API_KEY = ""; // Canvas will provide this in runtime
+    let quizData = []; // Store the fetched quiz data globally
+    let quotesData = [];
+    let currentQuoteIndex = 0;
+    
+    // UI Elements
+    const quizContainer = document.getElementById('quiz-container');
+    const loadingState = document.getElementById('loading-state');
+    const errorState = document.getElementById('error-state');
+    const questionsList = document.getElementById('questions-list');
+    const themeBtn = document.getElementById('themeBtn');
+    const changelogBtn = document.getElementById('changelogBtn');
+    const changelogModal = document.getElementById('changelogModal');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const funFactModal = document.getElementById('funFactModal');
+    const closeFactModalBtn = document.getElementById('closeFactModalBtn');
+    const funFactLoading = document.getElementById('funFactLoading');
+    const funFactText = document.getElementById('funFactText');
+    const generateTitleBtn = document.getElementById('generateTitleBtn');
+    const mainTitle = document.getElementById('mainTitle');
+    const quoteText = document.getElementById('quote-text');
+    const quoteAuthor = document.getElementById('quote-author');
+
+    // Theme logic
+    const sunSVG = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>`;
+    const moonSVG = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0015.354 20.354z"></path></svg>`;
+
+    const applyTheme = (theme) => {
+        if (theme === 'dark') {
+            document.body.classList.add('dark-theme');
+            themeBtn.innerHTML = sunSVG;
+            themeBtn.setAttribute('aria-label', 'Switch to light theme');
+            themeBtn.setAttribute('title', 'Switch to light theme');
+            themeBtn.setAttribute('aria-pressed', 'true');
+        } else {
+            document.body.classList.remove('dark-theme');
+            themeBtn.innerHTML = moonSVG;
+            themeBtn.setAttribute('aria-label', 'Switch to dark theme');
+            themeBtn.setAttribute('title', 'Switch to dark theme');
+            themeBtn.setAttribute('aria-pressed', 'false');
+        }
+    };
+
+    themeBtn.addEventListener('click', () => {
+        const currentTheme = localStorage.getItem('theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        localStorage.setItem('theme', newTheme);
+        applyTheme(newTheme);
+    });
+
+    // Changelog Modal
+    changelogBtn.setAttribute('aria-label', 'Open changelog');
+    changelogBtn.setAttribute('title', 'Open changelog');
+    changelogBtn.addEventListener('click', () => {
+        changelogModal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    });
+
+    closeModalBtn.addEventListener('click', () => {
+        changelogModal.classList.add('hidden');
+        document.body.style.overflow = '';
+    });
+
+    window.addEventListener('click', (e) => {
+        if (e.target === changelogModal) {
+            changelogModal.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+    });
+
+    // Fun Fact Modal
+    closeFactModalBtn.addEventListener('click', () => {
+        funFactModal.classList.add('hidden');
+        document.body.style.overflow = '';
+    });
+
+    window.addEventListener('click', (e) => {
+        if (e.target === funFactModal) {
+            funFactModal.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+    });
+    
+    // Click Effect
+    document.body.addEventListener('click', (e) => {
+        const ripple = document.createElement('div');
+        ripple.className = 'click-ripple';
+        ripple.style.left = `${e.clientX}px`;
+        ripple.style.top = `${e.clientY}px`;
+        document.body.appendChild(ripple);
+        
+        ripple.addEventListener('animationend', () => {
+            ripple.remove();
+        });
+    });
+
+    // Fetch Quiz Data
+    async function fetchQuiz() {
+        const controller = new AbortController();
+        const signal = controller.signal;
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+
+        loadingState.style.display = 'flex';
+        errorState.classList.add('hidden');
+        questionsList.classList.add('hidden');
+        
+        try {
+            const response = await fetch(API_URL, { signal });
+            clearTimeout(timeoutId);
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+
+            if (!data || !Array.isArray(data.quiz)) {
+                throw new Error("Invalid API response format");
+            }
+
+            quizData = data.quiz;
+            questionsList.classList.remove('hidden');
+            renderAllQuestions(quizData);
+        } catch (error) {
+            if (error.name === 'AbortError') {
+                console.error('Fetch aborted due to timeout.');
+                errorState.innerHTML = `<p class="text-red-500 font-bold text-xl">Request Timed Out!</p><p class="text-gray-600 mt-2">Server se jawab nahi mila. Please try again.</p>`;
+            } else {
+                console.error('Error fetching quiz data:', error.message);
+                errorState.innerHTML = `<p class="text-red-500 font-bold text-xl">API Fetching Failed!</p><p class="text-gray-600 mt-2">Server se data nahi aa raha hai. Check your connection or the API.</p>`;
+            }
+            errorState.classList.remove('hidden');
+            questionsList.classList.add('hidden');
+        } finally {
+            loadingState.style.display = 'none';
+        }
+    }
+
+    // Fetch Quotes Data
+    async function fetchQuotes() {
+        const controller = new AbortController();
+        const signal = controller.signal;
+        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
+
+        try {
+            const response = await fetch(QUOTE_API_URL, { signal });
+            clearTimeout(timeoutId);
+
+            if (!response.ok) {
+                throw new Error('Quotes API response was not ok');
+            }
+            quotesData = await response.json();
+            if (quotesData && quotesData.length > 0) {
+                setInterval(displayNextQuote, 10000);
+                displayNextQuote();
+            }
+        } catch (error) {
+            if (error.name === 'AbortError') {
+                console.error('Quotes API request timed out.');
+            } else {
+                console.error('Error fetching quotes data:', error);
+            }
+        }
+    }
+
+    function displayNextQuote() {
+        if (quotesData.length > 0) {
+            const quote = quotesData[currentQuoteIndex];
+            quoteText.innerHTML = `"${quote.quote}"`;
+            quoteAuthor.innerHTML = `- ${quote.author}`;
+            currentQuoteIndex = (currentQuoteIndex + 1) % quotesData.length;
+        }
+    }
+
+    // Function to call Gemini API for a fun fact
+    async function getFunFact(question, answer) {
+        funFactModal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        funFactLoading.classList.remove('hidden');
+        funFactText.innerHTML = '';
+        
+        const prompt = `Provide a very short, interesting fun fact or explanation about the following question and its answer. Keep it to one short paragraph.
+        Question: ${question}
+        Answer: ${answer}`;
+        
+        const payload = {
+            contents: [{ parts: [{ text: prompt }] }],
+            tools: [{ "google_search": {} }],
+            systemInstruction: {
+                parts: [{ text: "You are a friendly and knowledgeable AI assistant that provides interesting facts." }]
+            },
+        };
+        
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${API_KEY}`;
+        
+        try {
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            
+            const result = await response.json();
+            const candidate = result.candidates?.[0];
+            
+            if (candidate && candidate.content?.parts?.[0]?.text) {
+                const text = candidate.content.parts[0].text;
+                funFactText.innerHTML = `<p class="text-gray-700 dark:text-gray-300">${text}</p>`;
+            } else {
+                funFactText.innerHTML = `<p class="text-red-500">Sorry, I couldn't generate a fun fact right now. Please try again.</p>`;
+            }
+        } catch (error) {
+            console.error("Gemini API Error:", error);
+            funFactText.innerHTML = `<p class="text-red-500">An error occurred while connecting to the AI. Please check your network.</p>`;
+        } finally {
+            funFactLoading.classList.add('hidden');
+        }
+    }
+
+    // Function to call Gemini API for a new title
+    async function generateQuizTitle() {
+        if (quizData.length === 0) {
+            return;
+        }
+        
+        generateTitleBtn.disabled = true;
+        generateTitleBtn.textContent = 'Generating...';
+
+        const questions = quizData.map(item => item.question).join(', ');
+        const prompt = `Generate a very short, catchy, and creative title for a quiz based on the following questions: ${questions}. Provide only the title, no extra text.`;
+
+        const payload = {
+            contents: [{ parts: [{ text: prompt }] }],
+            systemInstruction: {
+                parts: [{ text: "You are a creative title generator. Only provide a single, catchy title." }]
+            },
+        };
+
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${API_KEY}`;
+
+        try {
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            const result = await response.json();
+            const newTitle = result.candidates?.[0]?.content?.parts?.[0]?.text.trim();
+            
+            if (newTitle) {
+                mainTitle.textContent = newTitle.replace(/"/g, ''); // Remove quotes if they exist
+            } else {
+                mainTitle.textContent = "Quiz Title Not Found!";
+            }
+        } catch (error) {
+            console.error("Gemini API Title Error:", error);
+            mainTitle.textContent = "Title Generation Failed";
+        } finally {
+            generateTitleBtn.disabled = false;
+            generateTitleBtn.innerHTML = `✨ Generate Quiz Title`;
+        }
+    }
+
+    // Render all questions and answers
+    function renderAllQuestions(quizData) {
+        questionsList.innerHTML = ''; // Clear previous content
+
+        quizData.forEach((item, index) => {
+            const questionBlock = document.createElement('div');
+            questionBlock.classList.add('p-4', 'sm:p-6', 'mb-4', 'sm:mb-6', 'rounded-xl', 'glass-card');
+
+            const questionHeader = document.createElement('div');
+            questionHeader.classList.add('flex', 'flex-col', 'sm:flex-row', 'justify-between', 'items-start', 'sm:items-center', 'mb-4');
+            
+            const questionHeading = document.createElement('h2');
+            questionHeading.classList.add('text-lg', 'sm:text-xl', 'md:text-2xl', 'font-semibold', 'text-gray-800', 'leading-relaxed', 'mb-2', 'sm:mb-0', 'w-full', 'sm:w-3/4');
+            questionHeading.textContent = `${index + 1}. ${item.question}`;
+            questionHeader.appendChild(questionHeading);
+
+            const funFactBtn = document.createElement('button');
+            funFactBtn.classList.add(
+                'bg-indigo-500', 'hover:bg-indigo-600', 'text-white', 'font-bold', 'py-2', 'px-4', 'rounded-full',
+                'shadow-md', 'transition-all', 'duration-300', 'transform', 'hover:scale-105', 'text-xs', 'whitespace-nowrap'
+            );
+            funFactBtn.innerHTML = `✨ Fun Fact`;
+            funFactBtn.onclick = () => getFunFact(item.question, item.answer);
+            questionHeader.appendChild(funFactBtn);
+
+            questionBlock.appendChild(questionHeader);
+
+            const optionsContainer = document.createElement('div');
+            optionsContainer.classList.add('grid', 'grid-cols-1', 'md:grid-cols-2', 'gap-4');
+
+            item.options.forEach(option => {
+                const optionBtn = document.createElement('div');
+                optionBtn.classList.add(
+                    'bg-white', 'text-gray-800', 'font-medium', 'rounded-full', 'py-3', 'px-6',
+                    'border', 'border-gray-200', 'shadow-md', 'text-sm', 'md:text-base', 'flex', 'items-center', 'justify-between'
+                );
+                optionBtn.textContent = option;
+                
+                if (option === item.answer) {
+                    optionBtn.classList.add('correct-answer');
+                }
+
+                optionsContainer.appendChild(optionBtn);
+            });
+            questionBlock.appendChild(optionsContainer);
+            questionsList.appendChild(questionBlock);
+        });
+    }
+
+    // Initial load
+    window.onload = () => {
+        const storedTheme = localStorage.getItem('theme') || 'light';
+        applyTheme(storedTheme);
+        fetchQuiz();
+        fetchQuotes();
+    };
+
+    // Event listener for the new button
+    generateTitleBtn.addEventListener('click', generateQuizTitle);
+
 </script>
-<noscript><i>Javascript required</i></noscript>
-
 </body>
 </html>
-
