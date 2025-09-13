@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TSun Daily Quiz</title>
     <link rel="icon" href="https://img.icons8.com/dusk/64/question-mark.png" type="image/x-icon">
+    <link rel="manifest" href="manifest.json">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
@@ -194,27 +195,55 @@
                 opacity: 0;
             }
         }
+        /* PWA Install Banner */
+        #pwa-install-banner {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100%);
+            z-index: 100;
+            width: 100%;
+            max-width: 480px; /* To make it look like a notification on desktop */
+            transition: transform 0.5s ease-in-out;
+        }
+        #pwa-install-banner.show {
+            transform: translateX(-50%) translateY(0);
+        }
     </style>
 </head>
 <body class="flex flex-col items-center justify-center p-4">
 
+    <!-- PWA Install Notification Shade -->
+    <div id="pwa-install-banner" class="hidden show flex items-center justify-between p-4 bg-gray-900 text-white rounded-b-lg shadow-xl">
+        <div class="flex items-center space-x-3">
+            <img src="https://placehold.co/48x48/81d4fa/000000?text=App" alt="App Icon" class="rounded-lg">
+            <div>
+                <p class="text-sm font-semibold">Install TSun Daily Quiz</p>
+                <p class="text-xs text-gray-400">Add to your home screen for quick access</p>
+            </div>
+        </div>
+        <button id="pwa-install-btn" class="bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-bold py-2 px-4 rounded-full transition-all duration-300 transform hover:scale-105">
+            Install
+        </button>
+    </div>
+
     <div class="w-full flex justify-end items-center py-4 px-2">
         <div class="flex space-x-2">
-            <button id="themeBtn" aria-label="Switch to dark theme" title="Switch to dark theme" aria-pressed="false" class="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-full shadow-md transition-all duration-300 transform hover:scale-105">
+            <button id="themeBtn" aria-label="Switch to dark theme" title="Switch to dark theme" aria-pressed="false" class="bg-indigo-500 hover:bg-indigo-600 text-white p-2 rounded-full shadow-md transition-all duration-300 transform hover:scale-105 aspect-square">
             </button>
-            <button id="changelogBtn" aria-label="Open changelog" title="Open changelog" class="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-full shadow-md transition-all duration-300 transform hover:scale-105">
-                📜 Changelog
+            <button id="changelogBtn" aria-label="Open changelog" title="Open changelog" class="bg-indigo-500 hover:bg-indigo-600 text-white p-2 rounded-full shadow-md transition-all duration-300 transform hover:scale-105 aspect-square">
+                📜
             </button>
         </div>
     </div>
 
-    <main class="w-full max-w-lg mt-8">
+    <main class="w-full mt-8">
         <h1 id="mainTitle" class="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-800 text-center">TSun Daily Quiz</h1>
         <p class="text-xs sm:text-sm text-center text-red-600 dark:text-red-400 mt-2">Daily Telenor Quiz Answer</p>
         <p class="text-xs sm:text-sm text-center text-red-600 dark:text-red-400 mt-2">By ༯𝙎ค૯𝙀𝘿✘🫀</p>
         <div id="quote-container" class="w-full text-center py-4 px-2">
-            <p id="quote-text" class="text-red-400 dark:text-red-300 italic text-sm md:text-base quote-animation"></p>
-            <p id="quote-author" class="text-red-500 dark:text-red-400 text-xs md:text-sm mt-1"></p>
+            <p id="quote-text" class="text-red-700 dark:text-red-600 italic text-sm md:text-base quote-animation"></p>
+            <p id="quote-author" class="text-red-800 dark:text-red-700 text-xs md:text-sm mt-1"></p>
         </div>
         <div id="quiz-container" class="glass-card rounded-2xl p-4 md:p-8 flex flex-col items-center shadow-lg transform transition-all duration-500 mt-4 md:mt-8">
             <div id="loading-state" class="text-center flex flex-col items-center">
@@ -225,27 +254,7 @@
                 <p class="text-red-500 font-bold text-xl">API Fetching Failed!</p>
                 <p class="text-gray-600 mt-2">Server se data nahi aa raha hai. Check your connection or the API.</p>
             </div>
-            <div id="questions-list" class="hidden w-full">
-            </div>
-            <div class="mt-6 w-full text-center">
-                <button id="generateTitleBtn" class="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded-full shadow-md transition-all duration-300 transform hover:scale-105">
-                    ✨ Generate Quiz Title
-                </button>
-            </div>
-        </div>
-        <div id="funFactModal" class="modal fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center p-4 hidden">
-            <div class="glass-card rounded-xl p-6 w-full max-w-lg shadow-lg">
-                <div class="flex justify-between items-center">
-                    <h3 class="text-2xl font-bold text-gray-800">✨ Fun Fact ✨</h3>
-                    <button id="closeFactModalBtn" class="text-gray-500 hover:text-gray-800 text-2xl font-bold">&times;</button>
-                </div>
-                <div id="funFactContent" class="mt-4 text-gray-700">
-                    <div id="funFactLoading" class="text-center flex flex-col items-center hidden">
-                        <div class="loader"></div>
-                        <p class="mt-4 text-gray-600">Generating fun fact<span class="animate-pulse">...</span></p>
-                    </div>
-                    <div id="funFactText"></div>
-                </div>
+            <div id="questions-list" class="hidden w-full grid grid-cols-1 sm:grid-cols-2 gap-4">
             </div>
         </div>
     </main>
@@ -270,7 +279,17 @@
             <div id="changelogContent" class="mt-4 max-h-96 overflow-y-auto pr-2">
                 <div class="mb-6 pb-4 border-b border-gray-200">
                     <p class="text-sm text-gray-500">Date: 13 September, 2025</p>
-                    <p class="text-sm text-gray-500">Version: 1.0.21</p>
+                    <p class="text-sm text-gray-500">Version: 2.3.5</p>
+                    <p class="text-sm text-gray-500">Author: ༯𝙎ค૯𝙀𝘿✘🫀</p>
+                    <ul class="list-disc list-inside mt-2 text-gray-700 space-y-1">
+                        <li><b>Feature:</b> Added PWA functionality for an installable app experience.</li>
+                        <li><b>UI/UX:</b> Implemented a smart notification shade to prompt users to install the app.</li>
+                        <li><b>Performance:</b> Integrated Service Worker for offline support and faster loading times.</li>
+                    </ul>
+                </div>
+                <div class="mb-6 pb-4 border-b border-gray-200">
+                    <p class="text-sm text-gray-500">Date: 13 September, 2025</p>
+                    <p class="text-sm text-gray-500">Version: 2.1.5</p>
                     <p class="text-sm text-gray-500">Author: ༯𝙎ค૯𝙀𝘿✘🫀</p>
                     <ul class="list-disc list-inside mt-2 text-gray-700 space-y-1">
                         <li><b>Fix:</b> We Add A Better Favivon.</li>
@@ -280,7 +299,7 @@
                 </div>
                 <div class="mb-6 pb-4 border-b border-gray-200">
                     <p class="text-sm text-gray-500">Date: 13 September, 2025</p>
-                    <p class="text-sm text-gray-500">Version: 1.0.13</p>
+                    <p class="text-sm text-gray-500">Version: 2.0.1</p>
                     <p class="text-sm text-gray-500">Author: ༯𝙎ค૯𝙀𝘿✘🫀</p>
                     <ul class="list-disc list-inside mt-2 text-gray-700 space-y-1">
                         <li><b>Feature:</b> Add Theme Switching Function.</li>
@@ -326,6 +345,56 @@
         </div>
     </div>
     <script>
+        let deferredPrompt;
+        const pwaInstallBanner = document.getElementById('pwa-install-banner');
+        const pwaInstallBtn = document.getElementById('pwa-install-btn');
+
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js').then(reg => {
+                    console.log('Service Worker registered! 😎', reg);
+                }).catch(err => {
+                    console.log('Service Worker registration failed: 😫', err);
+                });
+            });
+        }
+
+        // PWA Install Banner Logic
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Prevent the mini-infobar from appearing on mobile
+            e.preventDefault();
+            // Stash the event so it can be triggered later.
+            deferredPrompt = e;
+            // Update UI to notify the user they can add to home screen
+            pwaInstallBanner.classList.remove('hidden');
+            pwaInstallBanner.classList.add('show');
+        });
+
+        pwaInstallBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                // Wait for the user to respond to the prompt
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    console.log('User accepted the install prompt.');
+                } else {
+                    console.log('User dismissed the install prompt.');
+                }
+                // We've used the prompt, and it can't be used again. Hide the banner.
+                deferredPrompt = null;
+                pwaInstallBanner.classList.remove('show');
+                pwaInstallBanner.classList.add('hidden');
+            }
+        });
+
+        // Hide banner if app is already installed
+        window.addEventListener('appinstalled', () => {
+            console.log('TSun Daily Quiz was installed.');
+            pwaInstallBanner.classList.remove('show');
+            pwaInstallBanner.classList.add('hidden');
+        });
+
         const API_URL = 'https://corsproxy.io/?http%3A%2F%2Fpaktrickowner.serv00.net%2FApi.php';
         const QUOTE_API_URL = 'https://corsproxy.io/?https://quotes.tsunstudio.pw/api/quotes';
         const API_KEY = ""; // Canvas will provide this in runtime
@@ -342,11 +411,6 @@
         const changelogBtn = document.getElementById('changelogBtn');
         const changelogModal = document.getElementById('changelogModal');
         const closeModalBtn = document.getElementById('closeModalBtn');
-        const funFactModal = document.getElementById('funFactModal');
-        const closeFactModalBtn = document.getElementById('closeFactModalBtn');
-        const funFactLoading = document.getElementById('funFactLoading');
-        const funFactText = document.getElementById('funFactText');
-        const generateTitleBtn = document.getElementById('generateTitleBtn');
         const mainTitle = document.getElementById('mainTitle');
         const quoteText = document.getElementById('quote-text');
         const quoteAuthor = document.getElementById('quote-author');
@@ -394,19 +458,6 @@
         window.addEventListener('click', (e) => {
             if (e.target === changelogModal) {
                 changelogModal.classList.add('hidden');
-                document.body.style.overflow = '';
-            }
-        });
-
-        // Fun Fact Modal
-        closeFactModalBtn.addEventListener('click', () => {
-            funFactModal.classList.add('hidden');
-            document.body.style.overflow = '';
-        });
-
-        window.addEventListener('click', (e) => {
-            if (e.target === funFactModal) {
-                funFactModal.classList.add('hidden');
                 document.body.style.overflow = '';
             }
         });
@@ -501,96 +552,6 @@
             }
         }
 
-        // Function to call Gemini API for a fun fact
-        async function getFunFact(question, answer) {
-            funFactModal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-            funFactLoading.classList.remove('hidden');
-            funFactText.innerHTML = '';
-
-            const prompt = `Provide a very short, interesting fun fact or explanation about the following question and its answer. Keep it to one short paragraph.
-            Question: ${question}
-            Answer: ${answer}`;
-
-            const payload = {
-                contents: [{ parts: [{ text: prompt }] }],
-                tools: [{ "google_search": {} }],
-                systemInstruction: {
-                    parts: [{ text: "You are a friendly and knowledgeable AI assistant that provides interesting facts." }]
-                },
-            };
-
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${API_KEY}`;
-
-            try {
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                const result = await response.json();
-                const candidate = result.candidates?.[0];
-
-                if (candidate && candidate.content?.parts?.[0]?.text) {
-                    const text = candidate.content.parts[0].text;
-                    funFactText.innerHTML = `<p class="text-gray-700 dark:text-gray-300">${text}</p>`;
-                } else {
-                    funFactText.innerHTML = `<p class="text-red-500">Sorry, I couldn't generate a fun fact right now. Please try again.</p>`;
-                }
-            } catch (error) {
-                console.error("Gemini API Error:", error);
-                funFactText.innerHTML = `<p class="text-red-500">An error occurred while connecting to the AI. Please check your network.</p>`;
-            } finally {
-                funFactLoading.classList.add('hidden');
-            }
-        }
-
-        // Function to call Gemini API for a new title
-        async function generateQuizTitle() {
-            if (quizData.length === 0) {
-                return;
-            }
-
-            generateTitleBtn.disabled = true;
-            generateTitleBtn.textContent = 'Generating...';
-
-            const questions = quizData.map(item => item.question).join(', ');
-            const prompt = `Generate a very short, catchy, and creative title for a quiz based on the following questions: ${questions}. Provide only the title, no extra text.`;
-
-            const payload = {
-                contents: [{ parts: [{ text: prompt }] }],
-                systemInstruction: {
-                    parts: [{ text: "You are a creative title generator. Only provide a single, catchy title." }]
-                },
-            };
-
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${API_KEY}`;
-
-            try {
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                const result = await response.json();
-                const newTitle = result.candidates?.[0]?.content?.parts?.[0]?.text.trim();
-
-                if (newTitle) {
-                    mainTitle.textContent = newTitle.replace(/"/g, ''); // Remove quotes if they exist
-                } else {
-                    mainTitle.textContent = "Quiz Title Not Found!";
-                }
-            } catch (error) {
-                console.error("Gemini API Title Error:", error);
-                mainTitle.textContent = "Title Generation Failed";
-            } finally {
-                generateTitleBtn.disabled = false;
-                generateTitleBtn.innerHTML = `✨ Generate Quiz Title`;
-            }
-        }
-
         // Render all questions and answers
         function renderAllQuestions(quizData) {
             questionsList.innerHTML = ''; // Clear previous content
@@ -607,19 +568,10 @@
                 questionHeading.textContent = `${index + 1}. ${item.question}`;
                 questionHeader.appendChild(questionHeading);
 
-                const funFactBtn = document.createElement('button');
-                funFactBtn.classList.add(
-                    'bg-indigo-500', 'hover:bg-indigo-600', 'text-white', 'font-bold', 'py-2', 'px-4', 'rounded-full',
-                    'shadow-md', 'transition-all', 'duration-300', 'transform', 'hover:scale-105', 'text-xs', 'whitespace-nowrap'
-                );
-                funFactBtn.innerHTML = `✨ Fun Fact`;
-                funFactBtn.onclick = () => getFunFact(item.question, item.answer);
-                questionHeader.appendChild(funFactBtn);
-
                 questionBlock.appendChild(questionHeader);
 
                 const optionsContainer = document.createElement('div');
-                optionsContainer.classList.add('grid', 'grid-cols-1', 'md:grid-cols-2', 'gap-4');
+                optionsContainer.classList.add('grid', 'grid-cols-1', 'md:grid-cols-3', 'gap-4');
 
                 item.options.forEach(option => {
                     const optionBtn = document.createElement('div');
@@ -648,8 +600,6 @@
             fetchQuotes();
         };
 
-        // Event listener for the new button
-        generateTitleBtn.addEventListener('click', generateQuizTitle);
     </script>
 </body>
 </html>
